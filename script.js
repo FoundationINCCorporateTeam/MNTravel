@@ -6,37 +6,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Sample data for places (POI)
-var places = [
-    { name: "Store 1", lat: 51.505, lon: -0.09, description: "A great store." },
-    { name: "Store 2", lat: 51.51, lon: -0.1, description: "Another great store." },
-    { name: "Store 3", lat: 51.515, lon: -0.08, description: "Yet another great store." }
-];
-
 // Function to add a marker and popup to the map
 function addMarker(lat, lon, message) {
     var marker = L.marker([lat, lon]).addTo(map);
     marker.bindPopup(message).openPopup();
 }
-
-// Function to populate the sidebar with places
-function populateSidebar(places) {
-    var placesList = document.getElementById('places-list');
-    placesList.innerHTML = '';
-
-    places.forEach(place => {
-        var listItem = document.createElement('li');
-        listItem.textContent = place.name;
-        listItem.addEventListener('click', () => {
-            map.setView([place.lat, place.lon], 13);
-            addMarker(place.lat, place.lon, place.name + "<br>" + place.description);
-        });
-        placesList.appendChild(listItem);
-    });
-}
-
-// Populate the sidebar with the initial places
-populateSidebar(places);
 
 // Function to handle search
 function searchLocation(query) {
@@ -46,10 +20,15 @@ function searchLocation(query) {
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
-                var lat = data[0].lat;
-                var lon = data[0].lon;
-                map.setView([lat, lon], 13);
-                addMarker(lat, lon, query);
+                var bounds = new L.LatLngBounds();
+                data.forEach(item => {
+                    var lat = item.lat;
+                    var lon = item.lon;
+                    var displayName = item.display_name;
+                    addMarker(lat, lon, displayName);
+                    bounds.extend([lat, lon]);
+                });
+                map.fitBounds(bounds);
             } else {
                 alert("Location not found!");
             }
