@@ -1,0 +1,28 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#search-bar {
+    padding: 10px;
+    background: #fff;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#map {
+    flex: 1;
+}
+
+#location-input {
+    width: 80%;
+    padding: 10px;
+    margin-right: 10px;
+}
+
+#search-button {
+    padding: 10px;
+}
