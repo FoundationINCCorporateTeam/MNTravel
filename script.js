@@ -1,3 +1,6 @@
+// Include Supabase JavaScript client script from CDN
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 // Replace these with your Supabase URL and ANON key
 const SUPABASE_URL = 'https://cjebwwrjllxuszyjmxwj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWJ3d3JqbGx4dXN6eWpteHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg5MzY3NzUsImV4cCI6MjAzNDUxMjc3NX0.VeqDFVJaN-LtD8CpboGt2wDs_OQHFjWOqZHQ_2QsSUQ';
