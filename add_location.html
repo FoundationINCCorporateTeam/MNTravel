@@ -1,41 +1,65 @@
+<!-- add_location.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Location</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Include Leaflet CSS if using Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Add your own CSS if needed -->
+    <style>
+        #map {
+            height: 400px;
+        }
+    </style>
 </head>
 <body>
+    <h1>Add Location</h1>
+
+    <!-- Form for adding location -->
     <form id="add-location-form">
-        <h2>Add a New Location</h2>
-        <label for="name">Location Name:</label>
-        <input type="text" id="name" name="name" required><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
         
         <label for="lat">Latitude:</label>
-        <input type="number" id="lat" name="lat" step="any" required><br>
+        <input type="number" id="lat" name="lat" step="any" required><br><br>
         
         <label for="lon">Longitude:</label>
-        <input type="number" id="lon" name="lon" step="any" required><br>
+        <input type="number" id="lon" name="lon" step="any" required><br><br>
         
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" required></textarea><br>
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
         
         <label for="deal_type">Deal Type:</label>
         <select id="deal_type" name="deal_type" required>
             <option value="coupon_code">Coupon Code</option>
-            <option value="coupon_image">Coupon (Image)</option>
+            <option value="coupon_image">Coupon Image</option>
             <option value="coupon_barcode">Coupon Barcode</option>
-        </select><br>
+        </select><br><br>
         
-        <div id="deal-fields"></div><br>
-        
-        <label for="photos">Photos:</label>
-        <input type="file" id="photos" name="photos" multiple><br>
-        
-        <button type="submit">Add Location</button>
+        <!-- Additional fields based on deal type -->
+        <div id="coupon_fields">
+            <label for="coupon_code">Coupon Code:</label>
+            <input type="text" id="coupon_code" name="coupon_code"><br><br>
+            
+            <label for="coupon_image">Coupon Image:</label>
+            <input type="file" id="coupon_image" name="coupon_image"><br><br>
+            
+            <label for="coupon_barcode">Coupon Barcode:</label>
+            <input type="file" id="coupon_barcode" name="coupon_barcode"><br><br>
+        </div>
+
+        <button type="submit">Submit</button>
     </form>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Include Leaflet JavaScript library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Include your script.js file -->
     <script src="script.js"></script>
 </body>
 </html>
