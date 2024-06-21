@@ -51,6 +51,19 @@ class SupabaseClient {
     }
 }
 
+// Function to initialize Leaflet map
+function initMap() {
+    // Initialize map
+    const map = L.map('map').setView([51.505, -0.09], 13); // Initial center and zoom level
+
+    // Add Tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    return map;
+}
+
 // Function to store location data in Supabase
 async function storeLocation(data) {
     // Replace with your Supabase client instance
@@ -68,7 +81,6 @@ async function storeLocation(data) {
                     description: data.description,
                     deal_type: data.dealType,
                     coupon_code: data.couponCode,
-                    // Remove coupon_image and coupon_barcode fields
                 }
             ]);
 
@@ -85,39 +97,49 @@ async function storeLocation(data) {
 // Event listener for form submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-location-form');
+    if (form) {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+            const formData = new FormData(event.target);
+            const name = formData.get('name');
+            const lat = parseFloat(formData.get('lat'));
+            const lon = parseFloat(formData.get('lon'));
+            const description = formData.get('description');
+            const dealType = formData.get('deal_type');
+            let couponCode = null;
 
-        const formData = new FormData(event.target);
-        const name = formData.get('name');
-        const lat = parseFloat(formData.get('lat'));
-        const lon = parseFloat(formData.get('lon'));
-        const description = formData.get('description');
-        const dealType = formData.get('deal_type');
-        let couponCode = null;
+            if (dealType === 'coupon_code') {
+                couponCode = formData.get('coupon_code');
+            }
 
-        if (dealType === 'coupon_code') {
-            couponCode = formData.get('coupon_code');
-        }
+            try {
+                // Call function to store location data in Supabase
+                const locationData = {
+                    name,
+                    lat,
+                    lon,
+                    description,
+                    dealType,
+                    couponCode,
+                };
 
-        try {
-            // Call function to store location data in Supabase
-            const locationData = {
-                name,
-                lat,
-                lon,
-                description,
-                dealType,
-                couponCode,
-            };
+                const result = await storeLocation(locationData);
+                console.log('Location stored successfully:', result);
 
-            const result = await storeLocation(locationData);
-            console.log('Location stored successfully:', result);
-            // Optionally, redirect or show a success message
-        } catch (error) {
-            console.error('Error storing location:', error.message);
-            // Handle error, show error message, etc.
-        }
-    });
+                // Optionally, update map with new location
+                const map = initMap();
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`<b>${name}</b><br>${description}`)
+                    .openPopup();
+
+                // Optionally, redirect or show a success message
+            } catch (error) {
+                console.error('Error storing location:', error.message);
+                // Handle error, show error message, etc.
+            }
+        });
+    } else {
+        console.error('Form element with ID "add-location-form" not found.');
+    }
 });
