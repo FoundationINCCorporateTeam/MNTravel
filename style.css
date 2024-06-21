@@ -13,6 +13,19 @@ body, html {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+#container {
+    display: flex;
+    flex: 1;
+}
+
+#sidebar {
+    width: 250px;
+    background: #f7f7f7;
+    padding: 10px;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
 #map {
     flex: 1;
 }
@@ -25,4 +38,18 @@ body, html {
 
 #search-button {
     padding: 10px;
+}
+
+#places-list {
+    list-style: none;
+    padding: 0;
+}
+
+#places-list li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+#places-list li:hover {
+    background: #ddd;
 }
