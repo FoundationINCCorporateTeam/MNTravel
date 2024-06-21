@@ -1,7 +1,41 @@
-// Replace these with your Supabase URL and ANON key
-const SUPABASE_URL = 'https://cjebwwrjllxuszyjmxwj.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWJ3d3JqbGx4dXN6eWpteHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg5MzY3NzUsImV4cCI6MjAzNDUxMjc3NX0.VeqDFVJaN-LtD8CpboGt2wDs_OQHFjWOqZHQ_2QsSUQ';
-// Define createClient function
+// Simplified SupabaseClient definition for database interactions
+class SupabaseClient {
+    constructor(url, options) {
+        this.url = url;
+        this.headers = options.headers || {};
+        this.autoRefreshToken = options.autoRefreshToken || false;
+        this.persistSession = options.persistSession || false;
+    }
+
+    from(table) {
+        return {
+            select: async (columns) => {
+                // Simplified example: Fetch data from 'table' with 'columns'
+                const response = await fetch(`${this.url}/${table}`, {
+                    method: 'GET',
+                    headers: this.headers,
+                });
+                const data = await response.json();
+                return { data };
+            },
+
+            insert: async (data) => {
+                // Simplified example: Insert 'data' into 'table'
+                const response = await fetch(`${this.url}/${table}`, {
+                    method: 'POST',
+                    headers: this.headers,
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                return result;
+            },
+            
+            // Other methods like update, delete, etc. can be defined similarly
+        };
+    }
+}
+
+// Function to create and return a SupabaseClient instance
 function createClient(url, key) {
     return new SupabaseClient(url, {
         headers: {
@@ -12,6 +46,9 @@ function createClient(url, key) {
         persistSession: true,
     });
 }
+// Replace these with your Supabase URL and ANON key
+const SUPABASE_URL = 'https://cjebwwrjllxuszyjmxwj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWJ3d3JqbGx4dXN6eWpteHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg5MzY3NzUsImV4cCI6MjAzNDUxMjc3NX0.VeqDFVJaN-LtD8CpboGt2wDs_OQHFjWOqZHQ_2QsSUQ';
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
