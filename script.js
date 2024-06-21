@@ -1,142 +1,86 @@
+// Initialize the map and set its view to a default location
+var map = L.map('map').setView([51.505, -0.09], 13);
 
-// Function to create and return a SupabaseClient instance
-function createClient(url, key) {
-    return new SupabaseClient(url, {
-        headers: {
-            'apikey': key,
-            'Authorization': `Bearer ${key}`
-        },
-        autoRefreshToken: true,
-        persistSession: true,
-    });
+// Add a tile layer to the map (this is the background map you see)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Function to add a marker and popup to the map
+function addMarker(lat, lon, message) {
+    var marker = L.marker([lat, lon]).addTo(map);
+    marker.bindPopup(message).openPopup();
 }
 
-// Simplified SupabaseClient definition for database interactions
-class SupabaseClient {
-    constructor(url, options) {
-        this.url = url;
-        this.headers = options.headers || {};
-        this.autoRefreshToken = options.autoRefreshToken || false;
-        this.persistSession = options.persistSession || false;
-    }
+// Function to handle search
+function searchLocation(query) {
+    var url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}`;
 
-    from(table) {
-        return {
-            select: async (columns) => {
-                // Simplified example: Fetch data from 'table' with 'columns'
-                const response = await fetch(`${this.url}/${table}`, {
-                    method: 'GET',
-                    headers: this.headers,
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                var bounds = new L.LatLngBounds();
+                data.forEach(item => {
+                    var lat = item.lat;
+                    var lon = item.lon;
+                    var displayName = item.display_name;
+                    addMarker(lat, lon, displayName);
+                    bounds.extend([lat, lon]);
                 });
-                const data = await response.json();
-                return { data };
-            },
+                map.fitBounds(bounds);
+            } else {
+                alert("Location not found!");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
 
-            insert: async (data) => {
-                // Simplified example: Insert 'data' into 'table'
-                const response = await fetch(`${this.url}/${table}`, {
-                    method: 'POST',
-                    headers: this.headers,
-                    body: JSON.stringify(data),
+// Function to handle autocomplete suggestions
+function autocompleteSearch() {
+    var location = document.getElementById('location-input').value;
+    var url = `https://nominatim.openstreetmap.org/search?format=json&q=${location}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            var dropdown = document.getElementById('dropdown');
+            dropdown.innerHTML = '';
+
+            if (data.length > 0) {
+                dropdown.style.display = 'block';
+                data.forEach(item => {
+                    var option = document.createElement('div');
+                    option.textContent = `${item.display_name}`;
+                    option.addEventListener('click', () => {
+                        document.getElementById('location-input').value = item.display_name;
+                        dropdown.style.display = 'none';
+                        searchLocation(item.display_name);
+                        window.location.href = `${window.location.origin}/?search=map_query_search=mn-travel-database028574395#location=${item.lat},${item.lon}`;
+                    });
+                    dropdown.appendChild(option);
                 });
-                const result = await response.json();
-                return result;
-            },
-            
-            // Other methods like update, delete, etc. can be defined similarly
-        };
-    }
-}
-
-// Function to initialize Leaflet map
-function initMap() {
-    // Initialize map
-    const map = L.map('map').setView([51.505, -0.09], 13); // Initial center and zoom level
-
-    // Add Tile layer (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    return map;
-}
-
-// Function to store location data in Supabase
-async function storeLocation(data) {
-    // Replace with your Supabase client instance
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    try {
-        // Example: Insert data into 'locations' table
-        const { data: locationData, error } = await supabase
-            .from('locations')
-            .insert([
-                {
-                    name: data.name,
-                    lat: data.lat,
-                    lon: data.lon,
-                    description: data.description,
-                    deal_type: data.dealType,
-                    coupon_code: data.couponCode,
-                }
-            ]);
-
-        if (error) {
-            throw error;
-        }
-
-        return locationData;
-    } catch (error) {
-        throw error;
-    }
-}
-
-// Event listener for form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('add-location-form');
-    if (form) {
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const formData = new FormData(event.target);
-            const name = formData.get('name');
-            const lat = parseFloat(formData.get('lat'));
-            const lon = parseFloat(formData.get('lon'));
-            const description = formData.get('description');
-            const dealType = formData.get('deal_type');
-            let couponCode = null;
-
-            if (dealType === 'coupon_code') {
-                couponCode = formData.get('coupon_code');
+            } else {
+                dropdown.style.display = 'none';
             }
+        })
+        .catch(error => console.error('Error:', error));
+}
 
-            try {
-                // Call function to store location data in Supabase
-                const locationData = {
-                    name,
-                    lat,
-                    lon,
-                    description,
-                    dealType,
-                    couponCode,
-                };
+// Add event listener to the search button
+document.getElementById('search-button').addEventListener('click', () => {
+    var location = document.getElementById('location-input').value;
+    searchLocation(location);
+    window.location.href = `${window.location.origin}/?search=map_query_search=mn-travel-database028574395#location=${location}`;
+});
 
-                const result = await storeLocation(locationData);
-                console.log('Location stored successfully:', result);
+// Add event listener to the input field for autocomplete
+document.getElementById('location-input').addEventListener('input', autocompleteSearch);
 
-                // Optionally, update map with new location
-                const map = initMap();
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup(`<b>${name}</b><br>${description}`)
-                    .openPopup();
-
-                // Optionally, redirect or show a success message
-            } catch (error) {
-                console.error('Error storing location:', error.message);
-                // Handle error, show error message, etc.
-            }
-        });
-    } else {
-        console.error('Form element with ID "add-location-form" not found.');
+// Close the dropdown if the user clicks outside of it
+document.addEventListener('click', function(event) {
+    var dropdown = document.getElementById('dropdown');
+    if (!dropdown.contains(event.target) && event.target !== document.getElementById('location-input')) {
+        dropdown.style.display = 'none';
     }
 });
