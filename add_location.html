@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Location</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form id="add-location-form">
+        <h2>Add a New Location</h2>
+        <label for="name">Location Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        
+        <label for="lat">Latitude:</label>
+        <input type="number" id="lat" name="lat" step="any" required><br>
+        
+        <label for="lon">Longitude:</label>
+        <input type="number" id="lon" name="lon" step="any" required><br>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea><br>
+        
+        <label for="deal_type">Deal Type:</label>
+        <select id="deal_type" name="deal_type" required>
+            <option value="coupon_code">Coupon Code</option>
+            <option value="coupon_image">Coupon (Image)</option>
+            <option value="coupon_barcode">Coupon Barcode</option>
+        </select><br>
+        
+        <div id="deal-fields"></div><br>
+        
+        <label for="photos">Photos:</label>
+        <input type="file" id="photos" name="photos" multiple><br>
+        
+        <button type="submit">Add Location</button>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
