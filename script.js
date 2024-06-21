@@ -1,8 +1,9 @@
 // Replace these with your Supabase URL and ANON key
-const SUPABASE_URL = 'https://your-supabase-url';
-const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
+const SUPABASE_URL = 'https://cjebwwrjllxuszyjmxwj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqZWJ3d3JqbGx4dXN6eWpteHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg5MzY3NzUsImV4cCI6MjAzNDUxMjc3NX0.VeqDFVJaN-LtD8CpboGt2wDs_OQHFjWOqZHQ_2QsSUQ';
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Initialize the map and set its view to a default location
 var map = L.map('map').setView([51.505, -0.09], 13);
@@ -163,3 +164,38 @@ async function uploadFile(file) {
 
     return data?.Key;
 }
+
+// Function to display location details
+async function displayLocation(locationId) {
+    const { data, error } = await supabase
+        .from('locations')
+        .select('*')
+        .eq('id', locationId)
+        .single();
+
+    if (error) {
+        console.error('Error:', error);
+        return;
+    }
+
+    if (data) {
+        // Display location details on the location.html page or wherever needed
+        console.log('Location details:', data);
+        // Example: Update DOM with location details
+        document.getElementById('location-info').innerHTML = `
+            <h2>${data.name}</h2>
+            <p>${data.description}</p>
+            <p>Deal Type: ${data.deal_type}</p>
+            ${data.coupon_code ? `<p>Coupon Code: ${data.coupon_code}</p>` : ''}
+            ${data.coupon_image ? `<img src="${data.coupon_image}" alt="Coupon Image">` : ''}
+            ${data.coupon_barcode ? `<img src="${data.coupon_barcode}" alt="Coupon Barcode">` : ''}
+            <h3>Photos</h3>
+            ${data.photos ? data.photos.map(photo => `<img src="${photo}" alt="Location Photo">`).join('') : ''}
+        `;
+    } else {
+        console.log('Location not found');
+    }
+}
+
+// Call displayLocation with a specific location ID when needed, e.g., from a link click
+// displayLocation('your-location-id');
